@@ -96,7 +96,7 @@ def windowConv(x, t, poles):
 
     timesteps = len(t)
 
-    waves = np.array(map((lambda pole: np.convolve(
-        np.exp(pole*t), x)), poles)[0:timesteps])
+    waves = np.array(list(map((lambda pole: np.convolve(
+        np.exp(pole*t), x)), poles))[0:timesteps])
 
     return waves*(t[2]-t[1])
