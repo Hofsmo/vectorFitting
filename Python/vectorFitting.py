@@ -53,12 +53,9 @@ def findPoles(x, y, initPoles, t, tol=1e-3, iterator=0):
     if y.shape != t.shape:
         y = np.reshape(y, t.shape)
 
-    dt = t[1] - t[0]
-
     # Create waveforms from convolution
-    for i in np.arange(n):
-        xn[i] = np.convolve(np.exp(initPoles[i]*t), x)[0:timesteps]*dt
-        yn[i] = np.convolve(np.exp(initPoles[i]*t), y)[0:timesteps]*dt
+    xn = windowConv(x, initPoles, t)
+    yn = windowConv(y, initPoles, t)
 
     # Prepare vectors for least squares
     A = np.concatenate((np.reshape(x, (timesteps, 1)),
@@ -83,7 +80,7 @@ def findZeros(kn, qn):
     return np.roots(a)
 
 
-def windowConv(x, t, poles):
+def windowConv(x, poles, t):
     """Calculate the convolution for each poles
 
     Input:
