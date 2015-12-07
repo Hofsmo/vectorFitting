@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.signal as sig
 
 
 def fitVector(x, y, initPoles, t, tol=1e-5, iMax=100):
@@ -14,8 +13,7 @@ def fitVector(x, y, initPoles, t, tol=1e-5, iMax=100):
     Output:
 
             """
-
-    poles = np.zeros((len(initPoles), 1))
+    poles = 2*initPoles
 
     for i in np.arange(iMax):
         if np.linalg.norm(poles-initPoles) < tol:
@@ -27,7 +25,7 @@ def fitVector(x, y, initPoles, t, tol=1e-5, iMax=100):
     return []
 
 
-def findPoles(x, y, initPoles, t, tol=1e-3, iterator=0):
+def findPoles(x, y, initPoles, t):
     """Function that performs vector fitting
 
     Input:
@@ -71,13 +69,14 @@ def findPoles(x, y, initPoles, t, tol=1e-3, iterator=0):
     kn = sol[0][len(sol[0])-n:len(sol[0])]
     poles = findZeros(kn, initPoles)
 
+    # Flip unstable poles
+    poles.real[poles.real < 0] = -poles.real[poles.real < 0]
+
 
 def findZeros(kn, qn):
     """Function that finds the zeros in the fit function sigma"""
 
-    [a, b] = sig.invres(kn, qn, np.array([1]))
-
-    return np.roots(a)
+    return np.linalg.eig(np.diag(qn)-np.ones((len(kn), 1))*kn)
 
 
 def windowConv(x, poles, t):
@@ -96,4 +95,4 @@ def windowConv(x, poles, t):
     waves = np.array(list(map((lambda pole: np.convolve(
         np.exp(pole*t), x)), poles)))
 
-    return waves[:,0:timesteps]*(t[2]-t[1])
+    return waves[:, 0:timesteps]*(t[2]-t[1])
