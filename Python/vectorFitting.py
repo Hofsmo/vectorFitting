@@ -1,76 +1,80 @@
 import numpy as np
 
 
-def fitVector(x, y, initPoles, t, tol=1e-5, iMax=100):
-    """Function that performs time domain vector fitting
+class fitVector:
+    """Class used for performing vetor fitting"""
+    def __init__(self, x, y, t, tol=1e-5, iMax=100):
+        """Constructor for the fitVector class
 
-    Input:
-        x is the input to the system
-        y is the system's response to the input x
-        initPoles is a numpy column vector containing the inital poles
-        t is the time vector
+        Input:
+            x: is the input to the system
+            y: is the system's response to the input x
+            t: is the time vector
+            tol: is the decired precision of the fitting
+            iMax: is the maximum number of allowed iterations"""
 
-    Output:
+        self.x = x
+        self.y = y
+        self.t = t
+        self.tol = tol
+        self.iMax = iMax
 
+    def fitVector(self, initPoles):
+        """Function that performs time domain vector fitting
+
+        Input:
+            initPoles is a numpy column vector containing the inital poles
+
+        Output:
+
+                """
+        poles = 2*initPoles
+
+        for i in np.arange(self.iMax):
+            if np.linalg.norm(poles-initPoles) < self.tol:
+                poles = initPoles
+                initPoles = self.findPoles(poles)
+            else:
+                return initPoles
+
+        return []
+
+    def findPoles(self, initPoles):
+        """Function that performs vector fitting
+
+        Input:
+            initPoles is a numpy column vector containing the initial poles
+        Output:
+            poles the poles in the system
             """
-    poles = 2*initPoles
 
-    for i in np.arange(iMax):
-        if np.linalg.norm(poles-initPoles) < tol:
-            poles = initPoles
-            initPoles = findPoles(x, y, poles, t)
-        else:
-            return initPoles
+        # Initialize variables
+        n = len(initPoles)  # The number of poles in the system
+        timesteps = len(self.t)  # The number of timesteps in the input data
 
-    return []
+        xn = np.empty((n, timesteps), np.complex)
+        yn = np.empty((n, timesteps), np.complex)
 
+        # Create waveforms from convolution
+        xn = windowConv(self.x, initPoles, self.t)
+        yn = windowConv(self.y, initPoles, self.t)
 
-def findPoles(x, y, initPoles, t):
-    """Function that performs vector fitting
+        # Prepare vectors for least squares
+        A = np.concatenate((np.reshape(self.x, (timesteps, 1)),
+                            np.ones((timesteps, 1))*2,
+                            np.reshape(xn, (timesteps, n)),
+                            np.reshape(-yn, (timesteps, n))), 1)
+        tempy = np.reshape(self.y, (timesteps, 1))
 
-    Input:
-        x is the input data to the system
-        y is the response to the input x
-        initPoles is a numpy column vector containing the initial poles
-        t is the time vector.
-    Output:
-        poles the poles in the system
-        """
+        # Solve the system using least squares
+        sol = np.linalg.lstsq(A, tempy, rcond=1e-4)
 
-    # Initialize variables
-    n = len(initPoles)  # The number of poles in the system
-    timesteps = len(t)  # The number of timesteps in the input data
+        # Find kn in the solution vector sol
+        kn = sol[0][len(sol[0])-n:len(sol[0])]
+        poles = findZeros(kn, initPoles)
 
-    xn = np.empty((n, timesteps), np.complex)
-    yn = np.empty((n, timesteps), np.complex)
-
-    # The vectors used in the convolution should have the same dimensions
-    if x.shape != t.shape:
-        x = np.reshape(x, t.shape)
-
-    if y.shape != t.shape:
-        y = np.reshape(y, t.shape)
-
-    # Create waveforms from convolution
-    xn = windowConv(x, initPoles, t)
-    yn = windowConv(y, initPoles, t)
-
-    # Prepare vectors for least squares
-    A = np.concatenate((np.reshape(x, (timesteps, 1)),
-                        np.ones((timesteps, 1))*2,
-                        np.reshape(xn, (timesteps, n)),
-                        np.reshape(-yn, (timesteps, n))), 1)
-    y = np.reshape(y, (timesteps, 1))
-
-    # Solve the system using least squares
-    sol = np.linalg.lstsq(A, y, rcond=1e-4)
-
-    # Find kn in the solution vector sol
-    kn = sol[0][len(sol[0])-n:len(sol[0])]
-    poles = findZeros(kn, initPoles)
-
-    # Flip unstable poles
-    poles.real[poles.real < 0] = -poles.real[poles.real < 0]
+        # Flip unstable poles
+        poles.real[poles.real < 0] = -poles.real[poles.real < 0]
 
 
 def findZeros(kn, qn):
