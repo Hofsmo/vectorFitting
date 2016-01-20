@@ -1,4 +1,4 @@
-function poles = findPoles(x, y, t, initPoles, fReal)
+function poles = findPoles(x, y, t, initPoles, fReal, tol)
 % FINDPOLES find poles of a system using vector fitting
 %
 % INPUT:
@@ -13,6 +13,11 @@ function poles = findPoles(x, y, t, initPoles, fReal)
 if nargin < 5
     fReal = false;
 end
+
+if nargin < 6
+    tol = 1e-5;
+end
+
 % Number of poles
 n = numel(initPoles);
 
@@ -28,12 +33,16 @@ A = [x, xn, -yn];
 
 sol = A\y;
 
-kn = sol(end-n+1:end)';
+kn = sol(end-n+1:end)'; % Finding the residues
 
 poles = initPoles;
 
+% Check whether or not we already have the correct poles
+% Remember to check this assumption properly
+if all(real(kn)<tol)
+    poles = initPoles;
 %Check if we are dealing with complex pairs
-if any(imag(initPoles)>0 & ~fReal)
+elseif any(imag(initPoles)>0 & ~fReal)
 %Create the Â matrix from Gustavsen paper
     AHat = diag(real(initPoles));
     %Indices of the superdiagonal

@@ -1,5 +1,5 @@
-function [den,num,pn,cn,d] = fitVectorTime(x, y, t, initPoles, directCoupling,...
-    fReal, doTrapz, tol, i_max)
+function [pn,cn,d] = fitVectorTime(x, y, t, initPoles, directCoupling,...
+    fReal, tol, i_max)
 % FITVECTORTIME finds transfer function of a system using vector fitting
 %
 % INPUT:
@@ -7,11 +7,16 @@ function [den,num,pn,cn,d] = fitVectorTime(x, y, t, initPoles, directCoupling,..
 %   y: Output signal
 %   t: time signal
 %   initPoles: The initial poles of the system
+%   directCoupling: Boolean to turn on or off the direct coupling term. The
+%   default is false
+%   fReal: Forces the part of the code not dealing with complex conjugate
+%   pairs to be run.
+%   tol: If the residues change less than this, we assume convergence
+%   i_max: The maximum number of iterations
 %
 % OUTPUT:
-%   zn: zeros of the transfer function
 %   cn: residues of the system
-%   an: poles of the system
+%   pn: poles of the system
 %   d: direct coupling of the system
 
 if nargin < 9
@@ -54,6 +59,4 @@ else
     cn = xn\y;
     d = 0;
 end
-
 pn = poles;
-[den,num]=residue(cn,poles,d);
