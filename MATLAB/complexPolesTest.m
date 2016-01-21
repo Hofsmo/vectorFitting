@@ -8,17 +8,16 @@ function [zerr,perr] = complexPolesTest ()
     
     x = (exp(-t)-exp(-2*t))'; 
     
-    betha = linspace(0.7,2.5,3);
+    betha = linspace(98,114,3);
     p = complex(-betha/100,betha);
     initPoles = [p,conj(p)];
-    p = roots([1,2,105^2])';
-    initPoles = p
+    %p = roots([1,2,105^2])';
     
     [pn,cn,d] = fitVectorTime(x, y, t, initPoles);
    
     z = [-1, -2]; % Analytical answer if x was a real step
     p = roots([1,2,105^2])'; % Analytical answer if x was a real step
     
-    zn = roots(residue(cn(abs(cn)>1e-3),pn(abs(cn)>1e-3),d));
+    zn = roots(residue(cn(abs(cn)>1e-3),pn(abs(cn)>1e-3),d))';
     zerr = z-zn;
     perr = p-pn;

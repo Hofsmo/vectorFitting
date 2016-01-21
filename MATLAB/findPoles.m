@@ -1,38 +1,62 @@
-function poles = findPoles(x, y, t, initPoles, fReal, tol)
+function poles = findPoles(x, y, t, complexPoles, realPoles, tol)
 % FINDPOLES find poles of a system using vector fitting
 %
 % INPUT:
 %   x: Input signal
 %   y: Output signal
 %   t: time signal
-%   initPoles: The initial poles of the system
+%   complexPoles: The initial complex poles of the system. The code
+%   calculates the conjugates
+%   realPoles: The initial real poles of the system
 %
 % OUTPUT:
 %   poles: The estimated poles
-
-if nargin < 5
-    fReal = false;
-end
 
 if nargin < 6
     tol = 1e-5;
 end
 
-% Number of poles
-n = numel(initPoles);
+if nargin < 5
+    realPoles = [];
+end
 
-% Sort the poles
-initPoles = sort(initPoles);
+% Number of complexPoles
+nC = numel(complexPoles);
+
+% Number of real Poles
+nR = numel(realPoles);
 
 % Convolution between exponential of each pole and signals. Results are
 % stored in separate columns for each pole
-xn = windowConv (x, initPoles, t, false);
-yn = windowConv (y, initPoles, t, false);
+if ~isempty(realPoles) && ~isempty(complexPoles)
+    xnR = windowConv (x, realPoles, t, false);
+    ynR = windowConv (y, realPoles, t, false);
+    
+    xnC = windowConv (x, complexPoles, t, false);
+    ynC = windowConv (y, complexPoles, t, false);
+    
+    A = [x, xnR, -ynR, real(xnC), -imag(xnC), -real(ynC), imag(ynC);
+         zeros(size(x)), zeros(size(xnR)), zeros(size(ynR)), imag(xnC), real(xnC), -imag(ynC), -real(ynC)];
+elseif isempty(realPoles)
+    xnC = windowConv (x, complexPoles, t, false);
+    ynC = windowConv (y, complexPoles, t, false);
+    
+    A = [x, real(xnC), -imag(xnC), -real(ynC), imag(ynC);
+         zeros(size(x)), imag(xnC), real(xnC), -imag(ynC), -real(ynC)];
+     
+elseif isempty(complexPoles)
+    xnR = windowConv (x, realPoles, t, false);
+    ynR = windowConv (y, realPoles, t, false);
+    
+     A = [x, xnR, -ynR];
+else
+    error('No poles specified')
+end
+% 
 
-A = [x, xn, -yn];
 
-sol = A\y;
 
+sol = A\[y; zeors(size(y))];
 kn = sol(end-n+1:end)'; % Finding the residues
 
 poles = initPoles;
@@ -42,7 +66,7 @@ poles = initPoles;
 if all(real(kn)<tol)
     poles = initPoles;
 %Check if we are dealing with complex pairs
-elseif any(imag(initPoles)>0 & ~fReal)
+elseif any(imag(initPoles)>0)
 %Create the Â matrix from Gustavsen paper
     AHat = diag(real(initPoles));
     %Indices of the superdiagonal

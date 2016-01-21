@@ -1,5 +1,5 @@
-function [pn,cn,d] = fitVectorTime(x, y, t, initPoles, directCoupling,...
-    fReal, tol, i_max)
+function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, directCoupling,...
+    tol, i_max)
 % FITVECTORTIME finds transfer function of a system using vector fitting
 %
 % INPUT:
@@ -19,30 +19,27 @@ function [pn,cn,d] = fitVectorTime(x, y, t, initPoles, directCoupling,...
 %   pn: poles of the system
 %   d: direct coupling of the system
 
-if nargin < 9
+if nargin < 8
     i_max = 100;
 end
 
-if nargin < 8
+if nargin < 7
     tol = 1e-5;
 end
 
 if nargin < 6
-    fReal = false;
-end
-
-if nargin < 5
     directCoupling = true;
 end
 
-if nargin < 7
-    doTrapz = false;
+if nargin < 5
+    realPoles = [];
 end
+
 error = 10;
 i = 0;
 
 while error > tol && i < i_max
-    poles = findPoles(x, y, t, initPoles, fReal);
+    poles = findPoles(x, y, t, complexPoles, realPoles, tol);
     error = norm (poles-initPoles);
     initPoles = poles;
     i = i+1;
