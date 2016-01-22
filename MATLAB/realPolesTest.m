@@ -14,7 +14,7 @@ y = 1/2*(exp(-t)-exp(-3*t))';
 % Create the initial poles
 initPoles = -linspace(0,3,5);
 
-[pn,cn,d] = fitVectorTime(x, y, t, initPoles,true);
+[pn,cn,d] = fitVectorTime(x, y, t, [],initPoles);
 
 zAnal = [-2]; % Analytical answer if x was a real step
 pAnal = [-3]; % Analytical answer if x was a real step
