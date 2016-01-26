@@ -24,7 +24,7 @@ if nargin < 8
 end
 
 if nargin < 7
-    tol = 1e-5;
+    tol = 1e-4;
 end
 
 if nargin < 6
@@ -35,12 +35,12 @@ if nargin < 5
     realPoles = [];
 end
 
-error = 10;
+err = 10;
 i = 0;
 
-while error > tol && i < i_max
+while err > tol && i < i_max
     [tempReal, tempComplex] = findPoles(x, y, t, complexPoles, realPoles, tol);
-    error = norm ([tempReal,tempComplex]-[realPoles,complexPoles]);
+    err = immse([tempReal,tempComplex],[realPoles,complexPoles]);
     realPoles = tempReal;
     complexPoles = tempComplex;
     i = i+1;
@@ -52,29 +52,31 @@ nC = numel(complexPoles);
 
 % Intialize variables to store the poles
 xnR = sparse(ts, nR);
-xnC = sparse(ts, nC);
+xnI = sparse(ts, nC);
+xnII = sparse(ts, nC);
 
 if ~isempty(realPoles)
     xnR = windowConv (x, realPoles, t, false);
 end
 
 if ~isempty(complexPoles)
-    xnC = windowConv (x, complexPoles, t, false);
+    temp = windowConv (x, complexPoles, t, false);
+    xnI = real(temp);
+    xnII = imag(temp);
 end
 
-if directCoupling
-    A = [real(xnC), -imag(xnC), xnR, x;...
-         imag(xnC), real(xnC), sparse(ts, nR), sparse(ts, 1)];
-     
-    H = A\[y;sparse(ts,1)];
-    
-    d = full(H(end));
-    cnI = H(1:nC);
-    cnII = H(nC+1:2*nC);
-    cnR = H(2*nC+1:2*nC+nR);
-else
-    cn = xn\y;
-    d = 0;
+if ~directCoupling
+    x = sparse(ts,1);
 end
-pn = full([realPoles, complexPoles, conj(complexPoles)]);
-cn = full([cnR, complex(full(cnI), full(cnII)), conj(complex(full(cnI), full(cnII)))]);
+    
+A = [2*xnI, -2*xnII, xnR, x];
+     
+H = full(A)\y; % It seems mldivide is not good enough for sparce matrices
+
+d = full(H(end));
+cnI = H(1:nC);
+cnII = H(nC+1:2*nC);
+cnR = H(2*nC+1:2*nC+nR);
+    
+pn = [realPoles, cplxpair([complexPoles, conj(complexPoles)])];
+cn = [full(cnR'), complex(full(cnI'), full(cnII')), conj(complex(full(cnI'), full(cnII')))];

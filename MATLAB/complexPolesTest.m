@@ -1,23 +1,20 @@
-function [zerr,perr] = complexPolesTest ()
+function [err] = complexPolesTest ()
 
     ts = 0.001;
     Tf = 10;
     t = 0:ts:Tf;
     
-    y = (105*exp(-t).*sin(1/105*t))';
-    
+    H = tf(conv([1,1],[1,2]),conv([1,1/2+50i],[1,1/2-50i]));
     x = (exp(-t)-exp(-2*t))'; 
+    y = lsim(H,x,t);
     
-    betha = linspace(98,114,3);
-    p = complex(-betha/100,betha);
-    initPoles = [p,conj(p)];
-    %p = roots([1,2,105^2])';
+    [p,z]=pzmap(H);
+    
+    betha = -linspace(45,62,3);
+    initPoles = complex(betha/100,betha);
     
     [pn,cn,d] = fitVectorTime(x, y, t, initPoles);
-   
-    z = [-1, -2]; % Analytical answer if x was a real step
-    p = roots([1,2,105^2])'; % Analytical answer if x was a real step
     
-    zn = roots(residue(cn(abs(cn)>1e-3),pn(abs(cn)>1e-3),d))';
-    zerr = z-zn;
-    perr = p-pn;
+    [den,num] = residue(cn(abs(cn)>1e-3),pn(abs(cn)>1e-3),d);
+    yr = lsim(tf(den,num),x,t);
+    err = immse(y,yr);
