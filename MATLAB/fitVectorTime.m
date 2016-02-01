@@ -50,15 +50,9 @@ while err > tol && i < i_max
         err = norm(sort(tempReal) - sort(realPoles))...
             + norm(sort(tempComplex) - sort(complexPoles)); 
     end
-    
-    % Check if some residues are below the tolerance limit and remove them
-    if err < tol
-        realPoles = tempReal(abs(kn)<tol);
-        complexPoles = tempComplex(abs(knI)<tol);
-    else
-        realPoles = tempReal;
-        complexPoles = tempComplex;
-    end
+            
+    realPoles = tempReal;
+    complexPoles = tempComplex;
     i = i+1;
 end
 
