@@ -39,10 +39,26 @@ err = 10;
 i = 0;
 
 while err > tol && i < i_max
-    [tempReal, tempComplex] = findPoles(x, y, t, complexPoles, realPoles, tol);
-    err = immse([tempReal,tempComplex],[realPoles,complexPoles]);
-    realPoles = tempReal;
-    complexPoles = tempComplex;
+    [tempReal, tempComplex,kn,knI, realSignals, complexSignals, d] =...
+        findPoles(x, y, t, complexPoles, realPoles, tol);
+    %err = immse([tempReal,tempComplex],[realPoles,complexPoles]);
+    %err = sum(abs(kn))+sum(abs(knI));
+    
+    % Check whether or not the poles are moving
+    if numel(tempReal)==numel(realPoles) &&...
+            numel(tempComplex)==numel(complexPoles)
+        err = norm(sort(tempReal) - sort(realPoles))...
+            + norm(sort(tempComplex) - sort(complexPoles)); 
+    end
+    
+    % Check if some residues are below the tolerance limit and remove them
+    if err < tol
+        realPoles = tempReal(abs(kn)<tol);
+        complexPoles = tempComplex(abs(knI)<tol);
+    else
+        realPoles = tempReal;
+        complexPoles = tempComplex;
+    end
     i = i+1;
 end
 
