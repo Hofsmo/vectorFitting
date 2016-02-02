@@ -56,6 +56,10 @@ while err > tol && i < i_max
     i = i+1;
 end
 
+if i ==i_max
+    disp('iteration limit exceeded')
+end
+
 ts = numel(t); % Number of timesteps
 nR = numel(realPoles);
 nC = numel(complexPoles);

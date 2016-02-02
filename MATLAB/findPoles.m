@@ -87,20 +87,20 @@ while def
         def = true;
         [realR, iR] = max(abs(kn));
         [imagR, iC] = max (abs(knI));
-        if isempty(imagR) || realR > imagR
+        if isempty(imagR) && ~isempty(realR)
             realPoles = realPoles(kn~=kn(iR));
-        else 
+        elseif ~isempty(imagR) && isempty(realR)
+            complexPoles = complexPoles(knI~=knI(iC));
+        elseif realR>imagR
+            realPoles = realPoles(kn~=kn(iR));
+        else
             complexPoles = complexPoles(knI~=knI(iC));
         end
     else
         def = false;
     end
  end
-% if reduceN
-% if rank(full(A))<size(A,2)
-%     realPoles = realPoles(abs(kn)~=max(abs(kn)));
-%     kn = kn(abs(kn)~=max(abs(kn)));
-% end
+
     
 
 % Check whether or not we already have the correct poles
@@ -126,7 +126,7 @@ if nC > 0
     temp = eig(AHat-bc)';
     
     % If there are real poles forward them
-    poleForward = real(temp(abs(imag(temp))<tol));
+    poleForward = -abs(real(temp(abs(imag(temp))<tol)));
     temp = temp(abs(imag(temp))>tol);
     
     % Return only the negative pair of the complex conjugate pairs
