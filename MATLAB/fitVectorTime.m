@@ -91,6 +91,15 @@ d = full(H(end));
 cnI = H(1:nC);
 cnII = H(nC+1:2*nC);
 cnR = H(2*nC+1:2*nC+nR);
-    
-pn = [realPoles, cplxpair([complexPoles, conj(complexPoles)])];
-cn = [full(cnR'), complex(full(cnI'), full(cnII')), conj(complex(full(cnI'), full(cnII')))];
+
+% Check whether or not some of the residues are below the tolerance limit
+idxR = cnR(abs(cnR)<tol);
+idxC = cnI(abs(cnI)<tol) | cnII(abs(cnII)<tol);
+
+if sum(idxR+idxC)
+    [pn,cn,d] = fitVectorTime(x, y, t, complexPoles(~idxC),...
+        realPoles(~idxR), directCoupling, tol, i_max);
+else      
+    pn = [realPoles, cplxpair([complexPoles, conj(complexPoles)])];
+    cn = [full(cnR'), complex(full(cnI'), full(cnII')), conj(complex(full(cnI'), full(cnII')))];
+end

@@ -70,7 +70,7 @@ while def
     A = [x, xnR, -ynR, 2*xnI, -2*xnII, -2*ynI, 2*ynII];
 
     sol = (full(A)\y);
-
+    
     d = sol(1);
     MnR = sol(2:2+nR-1);
     kn = sol(nR+2:1+2*nR)'; % Residues for real poles
@@ -86,7 +86,7 @@ while def
     if rank(full(A)) < 2*nR+4*nC+1
         def = true;
         [realR, iR] = max(abs(kn));
-        [imagR, iC] = max (abs(knI));
+        [imagR, iC] = max (abs(complex(knI,knII)));
         if isempty(imagR) && ~isempty(realR)
             realPoles = realPoles(kn~=kn(iR));
         elseif ~isempty(imagR) && isempty(realR)
