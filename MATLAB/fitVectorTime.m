@@ -96,7 +96,7 @@ cnR = H(2*nC+1:2*nC+nR);
 idxR = cnR(abs(cnR)<tol);
 idxC = cnI(abs(cnI)<tol) | cnII(abs(cnII)<tol);
 
-if sum(idxR+idxC)
+if sum(idxR) || sum(idxC)
     [pn,cn,d] = fitVectorTime(x, y, t, complexPoles(~idxC),...
         realPoles(~idxR), directCoupling, tol, i_max);
 else      
