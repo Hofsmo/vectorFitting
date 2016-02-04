@@ -1,4 +1,4 @@
-function [realPoles, complexPoles,kn,knI, realSignals, complexSignals, d]...
+function [realPoles, complexPoles]...
     = findPoles(x, y, t, complexPoles, realPoles, tol)
 % FINDPOLES find poles of a system using vector fitting
 %
@@ -79,9 +79,6 @@ while def
     knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
     knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
 
-    realSignals = xnR*diag(MnR)-ynR*diag(kn);
-    complexSignals = xnI*diag(MnI)-xnII*diag(MnII)-ynI*diag(knI)+ynII*diag(knII);
-
     % Check if the system is rank deficient
     if rank(full(A)) < 2*nR+4*nC+1
         def = true;
@@ -144,10 +141,10 @@ if nR > 0
             setdiff(complex(-abs(real(temp(1:2:end))),...
         -abs(imag(temp(1:2:end)))),complexPoles)];
         realPoles = -abs(realPoles(abs(imag(realPoles))<tol));
-        return
-    end
+    else
         % Flip unstable poles
         realPoles(realPoles>0) = -realPoles(realPoles>0);
+    end
 end
 % In case the code for complex poles found any real poles.
 realPoles = [realPoles, setdiff(poleForward,realPoles)];

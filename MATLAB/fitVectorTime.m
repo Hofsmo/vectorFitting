@@ -39,10 +39,8 @@ err = 10;
 i = 0;
 
 while err > tol && i < i_max
-    [tempReal, tempComplex,kn,knI, realSignals, complexSignals, d] =...
+    [tempReal, tempComplex] =...
         findPoles(x, y, t, complexPoles, realPoles, tol);
-    %err = immse([tempReal,tempComplex],[realPoles,complexPoles]);
-    %err = sum(abs(kn))+sum(abs(knI));
     
     % Check whether or not the poles are moving
     if numel(tempReal)==numel(realPoles) &&...
