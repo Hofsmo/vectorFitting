@@ -1,5 +1,13 @@
 function wave = windowConv (x, poles, t)
 % WINDOWCONV calculates the convolution from the paper
+%
+% INPUT:
+%   x: input signal to be convolved with the poles
+%   poles: the poles to use in the convolution
+%   t: the time vector
+%
+% OUTPUT:
+%    wave: the resulting waveform from the convolution
 
 % Number of timesteps
 ts = numel(t);
