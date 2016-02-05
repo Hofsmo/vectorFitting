@@ -11,7 +11,8 @@ function [realPoles, complexPoles]...
 %   realPoles: The initial real poles of the system
 %
 % OUTPUT:
-%   poles: The estimated poles
+%   realPoles: The estimated real poles
+%   complexPoles: The estimated complex poles
 
 if nargin < 6
     tol = 1e-4;
@@ -71,11 +72,7 @@ while def
 
     sol = (full(A)\y);
     
-    d = sol(1);
-    MnR = sol(2:2+nR-1);
     kn = sol(nR+2:1+2*nR)'; % Residues for real poles
-    MnI = sol(2+2*nR:1+2*nR+nC);
-    MnII = sol(2+2*nR+nC:1+2*nR+2*nC);
     knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
     knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
 

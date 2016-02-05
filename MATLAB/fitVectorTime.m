@@ -6,12 +6,14 @@ function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, directCoupl
 %   x: Input signal
 %   y: Output signal
 %   t: time signal
-%   initPoles: The initial poles of the system
+%   complexPoles: The initial complex conjugate poles of the system. Only
+%   provide the negative halves of the pairs. The poles should be given as
+%   a row vector.
+%   realPoles: The initial real poles of the system. They have to be
+%   negative and given as a row vector.
 %   directCoupling: Boolean to turn on or off the direct coupling term. The
 %   default is false
-%   fReal: Forces the part of the code not dealing with complex conjugate
-%   pairs to be run.
-%   tol: If the residues change less than this, we assume convergence
+%   tol: If the poles change less than this, we assume convergence
 %   i_max: The maximum number of iterations
 %
 % OUTPUT:
@@ -94,7 +96,7 @@ cnR = H(2*nC+1:2*nC+nR);
 idxR = cnR(abs(cnR)<tol);
 idxC = cnI(abs(cnI)<tol) | cnII(abs(cnII)<tol);
 
-if sum(idxR) || sum(idxC)
+if any(idxR) || any(idxC)
     [pn,cn,d] = fitVectorTime(x, y, t, complexPoles(~idxC),...
         realPoles(~idxR), directCoupling, tol, i_max);
 else      
