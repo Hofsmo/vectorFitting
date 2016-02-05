@@ -96,10 +96,8 @@ while def
     else
         def = false;
     end
- end
-
+end
     
-
 % Check whether or not we already have the correct poles
 if all(abs(kn)<tol) && all(abs(knI) <tol)
     return
