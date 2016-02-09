@@ -70,11 +70,11 @@ xnI = sparse(ts, nC);
 xnII = sparse(ts, nC);
 
 if ~isempty(realPoles)
-    xnR = windowConv (x, realPoles, t, false);
+    xnR = windowConv (x, realPoles, t);
 end
 
 if ~isempty(complexPoles)
-    temp = windowConv (x, complexPoles, t, false);
+    temp = windowConv (x, complexPoles, t);
     xnI = real(temp);
     xnII = imag(temp);
 end
