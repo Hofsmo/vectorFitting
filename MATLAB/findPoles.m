@@ -54,16 +54,16 @@ while def
     % Convolution between exponential of each pole and signals. Results are
     % stored in separate columns for each pole
     if ~isempty(realPoles)
-        xnR = windowConv (x, realPoles, t, false);
-        ynR = windowConv (y, realPoles, t, false);
+        xnR = windowConv (x, realPoles, t);
+        ynR = windowConv (y, realPoles, t);
     end
 
     if ~isempty(complexPoles)
-        temp = windowConv (x, complexPoles, t, false);
+        temp = windowConv (x, complexPoles, t);
         xnI = real(temp);
         xnII = imag(temp);
 
-        temp = windowConv (y, complexPoles, t, false);
+        temp = windowConv (y, complexPoles, t);
         ynI = real(temp);
         ynII = imag(temp);
     end
