@@ -85,6 +85,8 @@ while def
     minR = min (relkn);
     if minR
         relkn = min(relkn)/max(relkn);
+    else
+        relkn = 1;
     end
     
     % Check if the system is rank deficient
