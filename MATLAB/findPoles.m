@@ -75,20 +75,25 @@ while def
     kn = sol(nR+2:1+2*nR)'; % Residues for real poles
     knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
     knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
-
+    
+    % Find the highest residue
+    relkn = [abs(kn),abs(complex(knI,knII))];
+    [~, iMaxkn] = max(relkn);
+    
+    % If no residues are zero check for large relative differences in
+    % residue size
+    minR = min (relkn);
+    if minR
+        relkn = min(relkn)/max(relkn);
+    end
+    
     % Check if the system is rank deficient
-    if rank(full(A)) < 2*nR+4*nC+1
+    if rank(full(A)) < 2*nR+4*nC+1 || relkn < tol
         def = true;
-        [realR, iR] = max(abs(kn));
-        [imagR, iC] = max (abs(complex(knI,knII)));
-        if isempty(imagR) && ~isempty(realR)
-            realPoles = realPoles(kn~=kn(iR));
-        elseif ~isempty(imagR) && isempty(realR)
-            complexPoles = complexPoles(knI~=knI(iC));
-        elseif realR>imagR
-            realPoles = realPoles(kn~=kn(iR));
+        if iMaxkn > nR
+            complexPoles = complexPoles(knI~=knI(iMaxkn-nR));            
         else
-            complexPoles = complexPoles(knI~=knI(iC));
+            realPoles = realPoles(kn~=kn(iMaxkn));
         end
     else
         def = false;
