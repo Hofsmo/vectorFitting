@@ -94,7 +94,7 @@ cnR = H(2*nC+1:2*nC+nR);
 
 % Check whether or not some of the residues are below the tolerance limit
 idxR = cnR(abs(cnR)<tol);
-idxC = cnI(abs(cnI)<tol) | cnII(abs(cnII)<tol);
+idxC = cnI(abs(cnI)<tol) & cnII(abs(cnII)<tol);
 
 if any(idxR) || any(idxC)
     [pn,cn,d] = fitVectorTime(x, y, t, complexPoles(~idxC),...
