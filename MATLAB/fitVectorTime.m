@@ -48,7 +48,7 @@ while err > tol && i < i_max
     if numel(tempReal)==numel(realPoles) &&...
             numel(tempComplex)==numel(complexPoles)
         err = norm(sort(tempReal) - sort(realPoles))...
-            + norm(sort(tempComplex) - sort(complexPoles)); 
+            + norm(sort(tempComplex) - sort(complexPoles));
     end
             
     realPoles = tempReal;
