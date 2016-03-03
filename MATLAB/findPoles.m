@@ -89,7 +89,8 @@ while def
         relkn = 1;
     end
     
-    % Check if the system is rank deficient
+    % Check if the system is rank deficient or relative difference smaller
+    % than tol
     if rank(full(A)) < 2*nR+4*nC+1 || relkn < tol
         def = true;
         if iMaxkn > nR
@@ -148,5 +149,8 @@ if nR > 0
         realPoles(realPoles>0) = -realPoles(realPoles>0);
     end
 end
-% In case the code for complex poles found any real poles.
-realPoles = [realPoles, setdiff(poleForward,realPoles)];
+temp = setdiff(poleForward,realPoles);
+if ~isempty(temp)
+    % In case the code for complex poles found any real poles.
+    realPoles = [realPoles, temp];
+end
