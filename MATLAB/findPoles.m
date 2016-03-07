@@ -1,4 +1,4 @@
-function [realPoles, complexPoles]...
+function [realPoles, complexPoles, err]...
     = findPoles(x, y, t, complexPoles, realPoles, tol)
 % FINDPOLES find poles of a system using vector fitting
 %
@@ -76,22 +76,33 @@ while def
     knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
     knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
     
+    % When normalizing the poles knI and knII cannot be 1x0 empty
+    if isempty(complexPoles)
+        knI=[];
+        knII=[];
+        complexPoles = [];
+    end
+    if isempty(realPoles)
+        kn = [];
+        realPoles = [];
+    end
     % Find the highest residue
-    relkn = [abs(kn),abs(complex(knI,knII))];
-    [~, iMaxkn] = max(relkn);
+    %abskn = [abs(kn)./abs(realPoles),abs(complex(knI,knII))./abs(complexPoles)];
+    abskn = [abs(kn),abs(complex(knI,knII))];
+    [~, iMaxkn] = max(abskn);
     
     % If no residues are zero check for large relative differences in
     % residue size
-    minR = min (relkn);
-    if minR
-        relkn = min(relkn)/max(relkn);
-    else
-        relkn = 1;
-    end
+%     minR = min (abskn);
+%     if minR
+%         relkn = min(abskn)/max(abskn);
+%     else
+%         relkn = 1;
+%     end
     
     % Check if the system is rank deficient or relative difference smaller
     % than tol
-    if rank(full(A)) < 2*nR+4*nC+1 || relkn < tol
+    if rank(full(A)) < 2*nR+4*nC+1 %|| relkn < tol
         def = true;
         if iMaxkn > nR
             complexPoles = complexPoles(knI~=knI(iMaxkn-nR));            
@@ -102,9 +113,12 @@ while def
         def = false;
     end
 end
+disp (realPoles)
+disp(kn)
+err = norm(abskn);
     
 % Check whether or not we already have the correct poles
-if all(abs(kn)<tol) && all(abs(knI) <tol)
+if err < tol
     return
 end
 %Check if we are dealing with complex pairs
@@ -131,6 +145,12 @@ if nC > 0
     
     % Return only the negative pair of the complex conjugate pairs
     complexPoles = complex(-abs(real(temp(1:2:end))), -abs(imag(temp(1:2:end))));
+    
+    % If no complex poles were found return an empty variable instead of
+    % and empty matrix
+    if isempty(complexPoles)
+        complexPoles =[];
+    end
 end
 if nR > 0
     % Find the zeros of the fit function
