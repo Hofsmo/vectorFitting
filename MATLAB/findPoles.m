@@ -15,7 +15,7 @@ function [realPoles, complexPoles]...
 %   complexPoles: The estimated complex poles
 
 if nargin < 6
-    tol = 1e-4;
+    tol = 1e-5;
 end
 
 if nargin < 5
@@ -32,9 +32,9 @@ knII = 0; % Imaginary part of the residues for complexPoles
 
 poleForward = [];
 
-def = true;
-
-while def
+% def = true;
+% 
+% while def
 
     % Number of complexPoles
     nC = numel(complexPoles);
@@ -77,31 +77,32 @@ while def
     knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
     
     % Find the highest residue
-    relkn = [abs(kn),abs(complex(knI,knII))];
-    [~, iMaxkn] = max(relkn);
+%     relkn = [abs(kn),abs(complex(knI,knII))];
+%     [~, iMaxkn] = max(relkn);
     
     % If no residues are zero check for large relative differences in
     % residue size
-    minR = min (relkn);
-    if minR
-        relkn = min(relkn)/max(relkn);
-    else
-        relkn = 1;
-    end
+%     minR = min (relkn);
+%     if minR
+%         relkn = min(relkn)/max(relkn);
+%     else
+%         relkn = 1;
+%     end
     
     % Check if the system is rank deficient or relative difference smaller
     % than tol
-    if rank(full(A)) < 2*nR+4*nC+1 || relkn < tol
-        def = true;
-        if iMaxkn > nR
-            complexPoles = complexPoles(knI~=knI(iMaxkn-nR));            
-        else
-            realPoles = realPoles(kn~=kn(iMaxkn));
-        end
-    else
-        def = false;
-    end
-end
+%     if rank(full(A)) < 2*nR+4*nC+1 %|| relkn < tol
+% %         def = true;
+% %         if iMaxkn > nR
+% %             complexPoles = complexPoles(knI~=knI(iMaxkn-nR));            
+% %         else
+% %             realPoles = realPoles(kn~=kn(iMaxkn));
+% %         end
+%         def = false;
+%     else
+%         def = false;
+%     end
+% end
     
 % Check whether or not we already have the correct poles
 if all(abs(kn)<tol) && all(abs(knI) <tol)
