@@ -15,7 +15,7 @@ function [realPoles, complexPoles, err]...
 %   complexPoles: The estimated complex poles
 
 if nargin < 6
-    tol = 1e-4;
+    tol = 1e-5;
 end
 
 if nargin < 5
@@ -32,9 +32,9 @@ knII = 0; % Imaginary part of the residues for complexPoles
 
 poleForward = [];
 
-def = true;
-
-while def
+% def = true;
+% 
+% while def
 
     % Number of complexPoles
     nC = numel(complexPoles);
@@ -90,12 +90,12 @@ while def
     %abskn = [abs(kn)./abs(realPoles),abs(complex(knI,knII))./abs(complexPoles)];
     abskn = [abs(kn),abs(complex(knI,knII))];
     [~, iMaxkn] = max(abskn);
-    
+   
     % If no residues are zero check for large relative differences in
     % residue size
-%     minR = min (abskn);
+%     minR = min (relkn);
 %     if minR
-%         relkn = min(abskn)/max(abskn);
+%         relkn = min(relkn)/max(relkn);
 %     else
 %         relkn = 1;
 %     end

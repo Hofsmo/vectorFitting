@@ -26,7 +26,7 @@ if nargin < 9
 end
 
 if nargin < 8
-    tol = 1e-4;
+    tol = 1e-5;
 end
 
 if nargin < 7

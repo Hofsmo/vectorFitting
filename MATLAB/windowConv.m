@@ -1,22 +1,28 @@
 function wave = windowConv (x, poles, t)
 % WINDOWCONV calculates the convolution from the paper
+% Function that performs the convolution integral described in the original 
+% TD-VF paper. However, using trapezoidal integration.
 %
 % INPUT:
-%   x: input signal to be convolved with the poles
-%   poles: the poles to use in the convolution
-%   t: the time vector
+%   x: The signal to convolve with the poles
+%   poles: The poles to use in the convolution
+%   t: the time signal
 %
 % OUTPUT:
-%    wave: the resulting waveform from the convolution
+%   wave: vector containing the waves resulting from the convolution
+ 
+dt = t(2)-t(1); % Time step
+n = numel (poles); % Number of poles 
 
-% Number of timesteps
-ts = numel(t);
+wave = zeros(numel(t), n);
 
-% Time window
-dt = t(2)-t(1);
-n = numel (poles);
+for i = 1:numel(n)
+    % Constants for trapezoidal integration. They can be found in
+    % paper comparing TD-VF and ZD-VF
+    
+	alpha = (1+poles(i)*dt/2)/(1-poles(i)*dt/2);
+    lambda = dt/2/(1-poles(i)*dt/2);
+    wave(:,i) = filter([lambda,lambda],[1,-alpha],x);
+end
 
-temp = reshape(cell2mat(arrayfun(@(pole) conv(exp(pole*t), x), poles,...
-    'UniformOutput', false)),[],n);
-wave = temp(1:ts,:)*dt;
 
