@@ -32,89 +32,59 @@ knII = 0; % Imaginary part of the residues for complexPoles
 
 poleForward = [];
 
-% def = true;
-% 
-% while def
+% Number of complexPoles
+nC = numel(complexPoles);
 
-    % Number of complexPoles
-    nC = numel(complexPoles);
+% Number of real Poles
+nR = numel(realPoles);
 
-    % Number of real Poles
-    nR = numel(realPoles);
-    
-    xnR = sparse(ts,nR);
-    ynR = sparse(ts,nR);
+xnR = sparse(ts,nR);
+ynR = sparse(ts,nR);
 
-    xnI = sparse(ts,nC);
-    ynI = sparse(ts,nC);
-    xnII = sparse(ts,nC);
-    ynII = sparse(ts,nC);
+xnI = sparse(ts,nC);
+ynI = sparse(ts,nC);
+xnII = sparse(ts,nC);
+ynII = sparse(ts,nC);
 
 
-    % Convolution between exponential of each pole and signals. Results are
-    % stored in separate columns for each pole
-    if ~isempty(realPoles)
-        xnR = windowConv (x, realPoles, t);
-        ynR = windowConv (y, realPoles, t);
-    end
-
-    if ~isempty(complexPoles)
-        temp = windowConv (x, complexPoles, t);
-        xnI = real(temp);
-        xnII = imag(temp);
-
-        temp = windowConv (y, complexPoles, t);
-        ynI = real(temp);
-        ynII = imag(temp);
-    end
-
-    A = [x, xnR, -ynR, 2*xnI, -2*xnII, -2*ynI, 2*ynII];
-
-    sol = (full(A)\y);
-    
-    kn = sol(nR+2:1+2*nR)'; % Residues for real poles
-    knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
-    knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
-    
-    % When normalizing the poles knI and knII cannot be 1x0 empty
-    if isempty(complexPoles)
-        knI=[];
-        knII=[];
-        complexPoles = [];
-    end
-    if isempty(realPoles)
-        kn = [];
-        realPoles = [];
-    end
-    % Find the highest residue
-    %abskn = [abs(kn)./abs(realPoles),abs(complex(knI,knII))./abs(complexPoles)];
-    abskn = [abs(kn),abs(complex(knI,knII))];
-    [~, iMaxkn] = max(abskn);
-   
-    % If no residues are zero check for large relative differences in
-    % residue size
-%     minR = min (relkn);
-%     if minR
-%         relkn = min(relkn)/max(relkn);
-%     else
-%         relkn = 1;
-%     end
-    
-    % Check if the system is rank deficient or relative difference smaller
-    % than tol
-    if rank(full(A)) < 2*nR+4*nC+1 %|| relkn < tol
-        def = true;
-        if iMaxkn > nR
-            complexPoles = complexPoles(knI~=knI(iMaxkn-nR));            
-        else
-            realPoles = realPoles(kn~=kn(iMaxkn));
-        end
-    else
-        def = false;
-    end
+% Convolution between exponential of each pole and signals. Results are
+% stored in separate columns for each pole
+if ~isempty(realPoles)
+    xnR = windowConv (x, realPoles, t);
+    ynR = windowConv (y, realPoles, t);
 end
-disp (realPoles)
-disp(kn)
+
+if ~isempty(complexPoles)
+    temp = windowConv (x, complexPoles, t);
+    xnI = real(temp);
+    xnII = imag(temp);
+
+    temp = windowConv (y, complexPoles, t);
+    ynI = real(temp);
+    ynII = imag(temp);
+end
+
+A = [x, xnR, -ynR, 2*xnI, -2*xnII, -2*ynI, 2*ynII];
+
+sol = (full(A)\y);
+
+kn = sol(nR+2:1+2*nR)'; % Residues for real poles
+knI = sol(end-2*nC+1:end-nC)'; % Real part of residues for complex poles
+knII = sol(end-nC+1:end)'; % Imagiary part of residues for complex poles
+
+% When normalizing the poles knI and knII cannot be 1x0 empty
+if isempty(complexPoles)
+    knI=[];
+    knII=[];
+    complexPoles = [];
+end
+if isempty(realPoles)
+    kn = [];
+    realPoles = [];
+end
+% Find the highest residue
+abskn = [abs(kn)./abs(realPoles),abs(complex(knI,knII))./abs(complexPoles)];
+
 err = norm(abskn);
     
 % Check whether or not we already have the correct poles

@@ -47,14 +47,7 @@ i = 0;
 while err > tol && i < i_max
     [tempReal, tempComplex, err] =...
         findPoles(x, y, t, complexPoles, realPoles, tol);
-    
-%    Check whether or not the poles are moving
-%     if numel(tempReal)==numel(realPoles) &&...
-%             numel(tempComplex)==numel(complexPoles)
-%         err = norm(sort(tempReal) - sort(realPoles))...
-%             + norm(sort(tempComplex) - sort(complexPoles));
-%     end
-        
+       
     if lsq
         [A,H]=findResidues(x,y,t, realPoles, complexPoles, directCoupling);
         temp=norm(y-A*H);
@@ -62,7 +55,6 @@ while err > tol && i < i_max
             err = temp;
         end
     end
-    disp(err)
     realPoles = tempReal;
     complexPoles = tempComplex;
     i = i+1;
