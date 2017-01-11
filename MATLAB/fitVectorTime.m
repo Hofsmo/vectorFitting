@@ -1,5 +1,5 @@
-function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, directCoupling,...
-    lsq, tol, i_max)
+function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, reduceOrder,...
+    directCoupling, lsq, tol, i_max)
 % FITVECTORTIME finds transfer function of a system using vector fitting
 %
 % INPUT:
@@ -11,6 +11,7 @@ function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, directCoupl
 %   a row vector.
 %   realPoles: The initial real poles of the system. They have to be
 %   negative and given as a row vector.
+%   reduceOrder: Default true, order is reduced by removing residues
 %   directCoupling: Boolean to turn on or off the direct coupling term. The
 %   default is false
 %   tol: If the poles change less than this, we assume convergence
@@ -21,20 +22,24 @@ function [pn,cn,d] = fitVectorTime(x, y, t, complexPoles, realPoles, directCoupl
 %   pn: poles of the system
 %   d: direct coupling of the system
 
-if nargin < 9
+if nargin < 10
     i_max = 100;
 end
 
-if nargin < 8
+if nargin < 9
     tol = 1e-5;
 end
 
-if nargin < 7
+if nargin < 8
     lsq = false;
 end
 
-if nargin < 6
+if nargin < 7
     directCoupling = true;
+end
+
+if nargin < 6
+    reduceOrder = true;
 end
 
 if nargin < 5
@@ -90,7 +95,7 @@ idxR = abs(cnR')./abs(realPoles)<tol;
 complexC = abs(complex(cnI,cnII))';
 idxC = complexC./abs(complexPoles)<tol;
 
-if any(idxR) || any(idxC)
+if any(idxR) || any(idxC) && reduceOrder
     [pn,cn,d] = fitVectorTime(x, y, t, complexPoles(~idxC),...
         realPoles(~idxR), directCoupling, tol);
 else      
